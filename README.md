@@ -17,4 +17,4 @@ All the other routes are catched and redirected to the application running in on
 
 ### Important (HostService)
 
-HostService is a Singleton service that has a method called UpdateHosts which is a background task that runs every minute and reads the hosts from the database and performs the health check on them and has a way to select the next host.
+HostService is a Singleton service that has a method called UpdateHosts which is a background task that runs every minute and reads the hosts from the database and performs the health check on them and has a method to return the next host.
