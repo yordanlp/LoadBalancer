@@ -10,7 +10,11 @@ Endpoints to configure instances hosts:
 }
 
 - DELETE: /api/Instance/{id}
-- GET: api/Instance/{id}
-- GET: api/Instance //Returns the list of instances registered
+- GET: /api/Instance/{id}
+- GET: /api/Instance //Returns the list of instances registered
 
 All the other routes are cathed and redirected to the Application running in one of the instances
+
+### Important (HostService)
+
+HostService is a Singleton service that has a method called UpdateHosts which is a background task that runs every minute and reads the hosts from the database and performs the health check on them and has a way to select the next host.
