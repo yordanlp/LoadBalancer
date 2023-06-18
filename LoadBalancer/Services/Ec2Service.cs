@@ -11,17 +11,13 @@ namespace LoadBalancer.Services {
     public class Ec2Service {
         private List<string> _ips = new List<string>();
         private int _currentIndex = 0;
-        private readonly HttpClient _httpClient = new HttpClient();
+        private readonly HttpClient _httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(10) };
         private const string HealthCheckEndpoint = "/_health";
-        private readonly IConfiguration _configuration;
-        private readonly string Region;
         private readonly IServiceScopeFactory _scopeFactory;
 
-        public Ec2Service( IConfiguration configuration, IServiceScopeFactory scopeFactory)
+        public Ec2Service(IServiceScopeFactory scopeFactory)
         {
             _scopeFactory = scopeFactory;
-            _configuration = configuration;
-            Region = configuration["Region"];
             UpdateIPs();
         }
 
@@ -42,12 +38,17 @@ namespace LoadBalancer.Services {
             {
                 try
                 {
-                    IEnumerable<string> dbInstances = new List<string>();
+                    List<string> dbInstances = new List<string>();
 
                     using (var scope = _scopeFactory.CreateScope())
                     {
                         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                        dbInstances = context.Instances.Select(i => i.ip).Distinct();
+                        var ips = context.Instances.Select(i => i.ip).Distinct().ToList();
+                        foreach(var ip in ips)
+                        {
+                            if (await IsHealthy(ip))
+                                dbInstances.Add(ip);
+                        }
                     }
 
                     _ips.Clear();
@@ -60,6 +61,24 @@ namespace LoadBalancer.Services {
 
                 await Task.Delay(TimeSpan.FromMinutes(1));
             }
+        }
+
+        private async Task<bool> IsHealthy(string ip)
+        {
+            string content = "";
+            HttpResponseMessage responseMessage = null;
+            try
+            {
+                responseMessage = await _httpClient.GetAsync($"http://{ip}{HealthCheckEndpoint}");
+                content = await responseMessage.Content.ReadAsStringAsync();
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e);
+                return false;
+            }
+            
+            return responseMessage.IsSuccessStatusCode && content == "Healthy";
         }
     }
 }
