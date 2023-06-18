@@ -18,10 +18,10 @@ namespace LoadBalancer.Controllers {
     [ApiController]
     public class LoadBalancerController : ControllerBase {
 
-        private readonly Ec2Service _ec2Service;
+        private readonly HostService _ec2Service;
         private readonly IConfiguration _configuration;
 
-        public LoadBalancerController( Ec2Service ec2Service, IConfiguration configuration )
+        public LoadBalancerController( HostService ec2Service, IConfiguration configuration )
         {
             _ec2Service = ec2Service;
             _configuration = configuration;

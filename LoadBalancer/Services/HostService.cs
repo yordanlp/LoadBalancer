@@ -8,14 +8,14 @@ using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace LoadBalancer.Services {
-    public class Ec2Service {
+    public class HostService {
         private List<string> _instances = new List<string>();
         private int _currentIndex = 0;
         private readonly HttpClient _httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(10) };
         private const string HealthCheckEndpoint = "/_health";
         private readonly IServiceScopeFactory _scopeFactory;
 
-        public Ec2Service(IServiceScopeFactory scopeFactory)
+        public HostService(IServiceScopeFactory scopeFactory)
         {
             _scopeFactory = scopeFactory;
             UpdateHosts();

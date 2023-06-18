@@ -33,7 +33,7 @@ namespace LoadBalancer {
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "LoadBalancer", Version = "v1" });
             });
-            services.AddSingleton<Ec2Service>();
+            services.AddSingleton<HostService>();
 
             services.AddDbContext<AppDbContext>(options =>
                 options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
