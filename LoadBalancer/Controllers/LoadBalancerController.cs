@@ -30,11 +30,11 @@ namespace LoadBalancer.Controllers {
         [Route("{*url}", Order = 999)]
         public IActionResult CatchAll(string url)
         {
-            var ip = _ec2Service.GetNextIP();
-            if (ip == null)
+            var host = _ec2Service.GetNextHost();
+            if (host == null)
                 return StatusCode(StatusCodes.Status503ServiceUnavailable);
 
-            return Redirect($"http://{ip}/{url}");
+            return Redirect($"{host}/{url}");
         }
 
     }

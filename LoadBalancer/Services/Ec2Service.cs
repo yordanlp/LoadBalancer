@@ -18,10 +18,10 @@ namespace LoadBalancer.Services {
         public Ec2Service(IServiceScopeFactory scopeFactory)
         {
             _scopeFactory = scopeFactory;
-            UpdateIPs();
+            UpdateHosts();
         }
 
-        public string GetNextIP()
+        public string GetNextHost()
         {
             if (_instances.Count == 0)
                 return null;
@@ -32,7 +32,7 @@ namespace LoadBalancer.Services {
             return _instances[_currentIndex++];
         }
 
-        private async void UpdateIPs()
+        private async void UpdateHosts()
         {
             while (true)
             {
@@ -63,13 +63,13 @@ namespace LoadBalancer.Services {
             }
         }
 
-        private async Task<bool> IsHealthy(string ip)
+        private async Task<bool> IsHealthy(string host)
         {
             string content = "";
             HttpResponseMessage responseMessage = null;
             try
             {
-                responseMessage = await _httpClient.GetAsync($"http://{ip}{HealthCheckEndpoint}");
+                responseMessage = await _httpClient.GetAsync($"{host}{HealthCheckEndpoint}");
                 content = await responseMessage.Content.ReadAsStringAsync();
             }
             catch(Exception e)
