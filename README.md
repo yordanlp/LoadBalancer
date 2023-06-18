@@ -7,7 +7,7 @@ Endpoints to configure instances hosts:
 - POST /api/Instance
 {
   "host": "protocol://host:port" 
-} // http:192.168.0.1:5000
+}
 
 - DELETE: /api/Instance/{id}
 - GET: /api/Instance/{id}
