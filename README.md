@@ -6,14 +6,14 @@ Endpoints to configure instances hosts:
 
 - POST /api/Instance
 {
-  "host": "protocol://host:port" // http:192.168.0.1:5000
+  "host": "protocol://host:port" 
 }
 
 - DELETE: /api/Instance/{id}
 - GET: /api/Instance/{id}
 - GET: /api/Instance //Returns the list of instances registered
 
-All the other routes are cathed and redirected to the Application running in one of the instances
+All the other routes are catched and redirected to the application running in one of the instances
 
 ### Important (HostService)
 
