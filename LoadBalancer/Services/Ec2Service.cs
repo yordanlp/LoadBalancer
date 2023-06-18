@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace LoadBalancer.Services {
     public class Ec2Service {
-        private List<string> _ips = new List<string>();
+        private List<string> _instances = new List<string>();
         private int _currentIndex = 0;
         private readonly HttpClient _httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(10) };
         private const string HealthCheckEndpoint = "/_health";
@@ -23,13 +23,13 @@ namespace LoadBalancer.Services {
 
         public string GetNextIP()
         {
-            if (_ips.Count == 0)
+            if (_instances.Count == 0)
                 return null;
 
-            if (_currentIndex >= _ips.Count)
+            if (_currentIndex >= _instances.Count)
                 _currentIndex = 0;
 
-            return _ips[_currentIndex++];
+            return _instances[_currentIndex++];
         }
 
         private async void UpdateIPs()
@@ -38,21 +38,21 @@ namespace LoadBalancer.Services {
             {
                 try
                 {
-                    List<string> dbInstances = new List<string>();
+                    List<string> instances = new List<string>();
 
                     using (var scope = _scopeFactory.CreateScope())
                     {
                         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                        var ips = context.Instances.Select(i => i.ip).Distinct().ToList();
-                        foreach(var ip in ips)
+                        var hosts = context.Instances.Select(i => i.host).Distinct().ToList();
+                        foreach(var host in hosts)
                         {
-                            if (await IsHealthy(ip))
-                                dbInstances.Add(ip);
+                            if (await IsHealthy(host))
+                                instances.Add(host);
                         }
                     }
 
-                    _ips.Clear();
-                    _ips.AddRange(dbInstances);
+                    _instances.Clear();
+                    _instances.AddRange(instances);
                 }
                 catch (Exception ex)
                 {

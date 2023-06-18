@@ -6,6 +6,6 @@ using System.Threading.Tasks;
 namespace LoadBalancer.Models {
     public class Instance {
         public int Id { get; set; }
-        public string ip { get; set; }
+        public string host { get; set; }
     }
 }
