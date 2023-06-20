@@ -43,11 +43,10 @@ namespace LoadBalancer.Services {
                     using (var scope = _scopeFactory.CreateScope())
                     {
                         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                        var hosts = context.Instances.Select(i => i.host).Distinct().ToList();
-                        foreach(var host in hosts)
+                        foreach(var instance in context.Instances)
                         {
-                            if (await IsHealthy(host))
-                                instances.Add(host);
+                            if (await IsHealthy(instance.InternalHost))
+                                instances.Add(instance.ExternalHost);
                         }
                     }
 
