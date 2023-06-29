@@ -1,3 +1,6 @@
+using Amazon;
+using Amazon.S3;
+using Amazon.S3.Model;
 using LoadBalancer.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -10,8 +13,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -68,6 +73,33 @@ namespace LoadBalancer {
             });
 
             context.Database.Migrate();
+
+            LoadConfigurationFromS3(context).Wait();
         }
+
+        private async Task LoadConfigurationFromS3(AppDbContext context)
+        {
+            var s3Client = new AmazonS3Client(RegionEndpoint.EUCentral1);
+
+            GetObjectRequest request = new GetObjectRequest
+            {
+                BucketName = "coffee-shop-config",
+                Key = "instances.json"
+            };
+
+            using GetObjectResponse response = await s3Client.GetObjectAsync(request);
+            using Stream responseStream = response.ResponseStream;
+            using StreamReader reader = new StreamReader(responseStream);
+            string responseBody = reader.ReadToEnd();
+
+            List<LoadBalancer.Models.Instance> configs = JsonConvert.DeserializeObject<List<LoadBalancer.Models.Instance>>(responseBody);
+
+            foreach (var config in configs)
+            {
+                context.Instances.Add(config);
+            }
+            await context.SaveChangesAsync();
+        }
+
     }
 }
